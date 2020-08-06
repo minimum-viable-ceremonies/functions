@@ -1,8 +1,6 @@
 # Minimum Viable Marketing
 
-The backend functions site for the [Minimum Viable Ceremonies](https://github.com/minimum-viable-ceremonies/app) app.
-
-It's a collection of [Firebase functions](https://firebase.google.com/docs/functions)
+A collection of [firebase functions](https://firebase.google.com/docs/functions) to be used as a backend for the [Minimum Viable Ceremonies](https://github.com/minimum-viable-ceremonies/app) app.
 
 ###  🔧 **Developing.**
 
