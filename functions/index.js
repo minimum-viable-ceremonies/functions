@@ -1,13 +1,13 @@
-const { https } = require('firebase-functions')
+const { upload, download } = require('./calendar')
+const firebase = require('firebase-admin')
 
-exports.helloWorldRequest = https.onRequest((req, res) => {
-  res.json({
-    message: "Hello from Minimum Viable Ceremonies! (onRequest)"
-  })
+firebase.initializeApp({
+  apiKey: process.env.MVC_FIREBASE_API_KEY,
+  authDomain: `${process.env.MVC_FIREBASE_DOMAIN}.firebaseapp.com`,
+  databaseURL: `https://${process.env.MVC_FIREBASE_DOMAIN}.firebaseio.com`,
+  projectId: `${process.env.MVC_FIREBASE_DOMAIN}`,
+  storageBucket: `${process.env.MVC_FIREBASE_DOMAIN}.appspot.com`,
 })
 
-exports.helloWorldCall = https.onCall((data, context) => {
-  return {
-    message: "Hello from Minimum Viable Ceremonies! (onCall)"
-  }
-})
+exports.calendar = require('./calendar')
+exports.sendgrid = require('./sendgrid')
