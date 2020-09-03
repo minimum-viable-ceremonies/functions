@@ -10,3 +10,4 @@ firebase.initializeApp({
 })
 
 exports.calendar = require('./calendar')
+exports.sendgrid = require('./sendgrid')

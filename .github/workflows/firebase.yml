@@ -18,3 +18,6 @@ jobs:
         args: deploy --only functions --project ${{ secrets.FIREBASE_DOMAIN }}
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        SENDGRID_LIST_ID: ${{ secrets.SENDGRID_LIST_ID }}
+        SENDGRID_CORS_ORIGIN: ${{ secrets.SENDGRID_CORS_ORIGIN }}
