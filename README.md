@@ -9,11 +9,12 @@ cd functions
 npm run serve
 ```
 
-In order for the Sendgrid lambdas to work correctly, the following ENV variables will need to be populated:
-```
-SENDGRID_API_KEY <api key with read/write access to contact lists>
-SENDGRID_LIST_ID <contact list to interact with>
-SENDGRID_CORS_ORIGIN <origin of site that will be calling this API>
+In order for the Sendgrid lambdas to work correctly, the following firebase config variables will need to be populated:
+```shell
+firebase functions:config:set \
+  sendgrid.api_key (api key with write access to contact lists) \
+  sendgrid.list_id (id of sendgrid contact list to interact with) \
+  sendgrid.cors_origin (domain which will be querying this API)
 ```
 
 ### 💫 **Deploying.**
