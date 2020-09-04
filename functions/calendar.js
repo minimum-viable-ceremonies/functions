@@ -28,7 +28,7 @@ const buildEvent = ({ startTime, endTime, weekCount }, freq, day, offset = 1) =>
     repeating: {
       freq,
       until: m.clone().add(3, 'month'),
-      interval: weekCount,
+      interval: day ? weekCount : 1,
       byDay: day ? [day.slice(0,2)] : ['mo', 'tu', 'we', 'th', 'fr']
     }
   }
