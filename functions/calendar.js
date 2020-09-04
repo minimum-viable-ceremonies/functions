@@ -1,89 +1,75 @@
-const firebase = require('firebase-admin')
+const { database, storage } = require('firebase-admin')
 const { https } = require('firebase-functions')
 const generator = require('ical-generator')
 const moment = require('moment')
 const fs = require('fs')
 
 const eventPlacements = {
-  'monday-1': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'monday'),
-  'tuesday-1': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'tuesday'),
-  'wednesday-1': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'wednesday'),
-  'thursday-1': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'thursday'),
-  'friday-1': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'friday'),
-  'monday-2': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'monday', 2),
-  'tuesday-2': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'tuesday', 2),
-  'wednesday-2': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'wednesday', 2),
-  'thursday-2': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'thursday', 2),
-  'friday-2': (event, ceremony) => buildEvent(event, ceremony, 'weekly', 'friday', 2),
-  'daily': (event, ceremony) => buildEvent(event, ceremony, 'daily')
+  'monday-1':    ceremony => buildEvent(ceremony, 'weekly', 'monday'),
+  'tuesday-1':   ceremony => buildEvent(ceremony, 'weekly', 'tuesday'),
+  'wednesday-1': ceremony => buildEvent(ceremony, 'weekly', 'wednesday'),
+  'thursday-1':  ceremony => buildEvent(ceremony, 'weekly', 'thursday'),
+  'friday-1':    ceremony => buildEvent(ceremony, 'weekly', 'friday'),
+  'monday-2':    ceremony => buildEvent(ceremony, 'weekly', 'monday', 2),
+  'tuesday-2':   ceremony => buildEvent(ceremony, 'weekly', 'tuesday', 2),
+  'wednesday-2': ceremony => buildEvent(ceremony, 'weekly', 'wednesday', 2),
+  'thursday-2':  ceremony => buildEvent(ceremony, 'weekly', 'thursday', 2),
+  'friday-2':    ceremony => buildEvent(ceremony, 'weekly', 'friday', 2),
+  'daily':       ceremony => buildEvent(ceremony, 'daily')
 }
 
-const buildEvent = (event, { startTime, endTime, weekCount }, freq, day = 'monday', offset = 1) => {
-  const m = moment().startOf('isoWeek').add(offset, 'week').day(day)
+const buildEvent = ({ startTime, endTime, weekCount }, freq, day, offset = 1) => {
+  const m = moment().startOf('isoWeek').add(offset, 'week').day(day || 'monday')
 
-  if (startTime && endTime) {
-    event.start = m.add(startTime, 'minutes')
-    event.end = m.add(endTime, 'minutes')
-  }
-
-  if (countFor(weekCount)) {
-    event.repeating({
+  return {
+    start: m.clone().add(startTime, 'minutes'),
+    end: m.clone().add(endTime, 'minutes'),
+    allDay: !startTime,
+    repeating: {
       freq,
+      until: m.clone().add(3, 'month'),
       interval: weekCount,
-      count: countFor(freq, weekCount)
-    })
+      byDay: day ? [day.slice(0,2)] : ['mo', 'tu', 'we', 'th', 'fr']
+    }
   }
 }
 
-const countFor = (freq, weekCount) => {
-  switch(freq) {
-    case 'daily': return 60
-    case 'weekly': return 12 / weekCount
-    case 'monthly': return 3
-  }
-}
-
-exports.upload = https.onRequest(({ body: { uuid, calendar = {} } }, res) => {
-  firebase.database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
+exports.upload = https.onRequest((req, res) => {
+  const { uuid, calendar = {} } = req.body
+  database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
     const { weekCount, ceremonies, participants = {} } = snapshot.val()
-
-    const ical = generator({
-      domain: process.env.MVC_FIREBASE_DOMAIN,
-      name: calendar.name || 'Calendar Name',
-      timezone: calendar.timeZone || 'Europe/Berlin',
-    })
+    const ical = generator()
 
     Object
       .values(ceremonies)
       .filter(({ placement }) => !!eventPlacements[placement])
-      .forEach(ceremony => {
-        const event = ical.createEvent()
-        eventPlacements[placement](event, ceremony)
-
-        Object
-          .values(people)
-          .map(uuid => participants[uuid])
-          .filter(participant => participant)
-          .forEach(({ username, email, optional }) => {
-            event.createAttendee({
+      .forEach(ceremony => (
+        ical.createEvent({
+          ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
+          summary: ceremony.title || ceremony.id,
+          description: ceremony.notes,
+          timezone: calendar.timeZone || 'Pacific/Auckland',
+          attendees: Object
+            .values(ceremony.people || [])
+            .map(uuid => participants[uuid])
+            .filter(participant => participant)
+            .map(({ username, email, optional }) => ({
               email,
               name: username,
               role: optional ? 'opt-participant' : 'req-participant',
               type: 'individual'
-            })
-          })
-    })
+            }))
+        })
+      ))
 
-    fs.writeFile(`/tmp/${uuid}.ical`, ical.toString(), console.log)
-    firebase.storage().bucket().upload(`/tmp/${uuid}.ical`)
-
+    ical.saveSync(`/tmp/${uuid}.ical`)
+    storage().bucket().upload(`/tmp/${uuid}.ical`)
     res.status(200).send({status: 'ok'})
   })
 })
 
 exports.download = https.onRequest(({ query: { uuid } }, res) => (
-  firebase
-    .storage()
+  storage()
     .bucket()
     .file(`${uuid}.ical`)
     .download(`/tmp/${uuid}.ical`)
