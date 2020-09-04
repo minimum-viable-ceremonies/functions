@@ -1,8 +1,9 @@
 const { database, storage } = require('firebase-admin')
-const { https } = require('firebase-functions')
+const { https, config } = require('firebase-functions')
 const generator = require('ical-generator')
 const moment = require('moment')
 const fs = require('fs')
+const cors = require('cors')
 
 const eventPlacements = {
   'monday-1':    ceremony => buildEvent(ceremony, 'weekly', 'monday'),
@@ -34,39 +35,42 @@ const buildEvent = ({ startTime, endTime, weekCount }, freq, day, offset = 1) =>
   }
 }
 
-exports.upload = https.onRequest((req, res) => {
-  const { uuid, calendar = {} } = req.body
-  database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
-    const { weekCount, ceremonies, participants = {} } = snapshot.val()
-    const ical = generator()
+exports.upload = https.onRequest((req, res) => (
+  cors({origin: config().sendgrid.cors_origin})(req, res, () => {
+    const { uuid, calendar = {} } = req.body
 
-    Object
-      .values(ceremonies)
-      .filter(({ placement }) => !!eventPlacements[placement])
-      .forEach(ceremony => (
-        ical.createEvent({
-          ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
-          summary: ceremony.title || ceremony.id,
-          description: ceremony.notes,
-          timezone: calendar.timeZone || 'Pacific/Auckland',
-          attendees: Object
-            .values(ceremony.people || [])
-            .map(uuid => participants[uuid])
-            .filter(participant => participant)
-            .map(({ username, email, optional }) => ({
-              email,
-              name: username,
-              role: optional ? 'opt-participant' : 'req-participant',
-              type: 'individual'
-            }))
-        })
-      ))
+    database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
+      const { weekCount, ceremonies, participants = {} } = snapshot.val()
+      const ical = generator()
 
-    ical.saveSync(`/tmp/${uuid}.ical`)
-    storage().bucket().upload(`/tmp/${uuid}.ical`)
-    res.status(200).send({status: 'ok'})
+      Object
+        .values(ceremonies)
+        .filter(({ placement }) => !!eventPlacements[placement])
+        .forEach(ceremony => (
+          ical.createEvent({
+            ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
+            summary: ceremony.title || ceremony.id,
+            description: ceremony.notes,
+            timezone: calendar.timeZone || 'Pacific/Auckland',
+            attendees: Object
+              .values(ceremony.people || [])
+              .map(uuid => participants[uuid])
+              .filter(participant => participant)
+              .map(({ username, email, optional }) => ({
+                email,
+                name: username,
+                role: optional ? 'opt-participant' : 'req-participant',
+                type: 'individual'
+              }))
+          })
+        ))
+
+      ical.saveSync(`/tmp/${uuid}.ical`)
+      storage().bucket().upload(`/tmp/${uuid}.ical`)
+      res.status(200).send({status: 'ok'})
+    })
   })
-})
+))
 
 exports.download = https.onRequest(({ query: { uuid } }, res) => (
   storage()
