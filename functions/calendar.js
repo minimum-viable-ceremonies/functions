@@ -1,96 +1,81 @@
-const firebase = require('firebase-admin')
-const { https } = require('firebase-functions')
+const { database, storage } = require('firebase-admin')
+const { https, config } = require('firebase-functions')
 const generator = require('ical-generator')
 const moment = require('moment')
 const fs = require('fs')
-
-const weeklyEvent = (event, ceremony, day, offset = 1) => {
-  const { startTime, endTime, weekCount } = ceremony
-  const m = moment().startOf('isoWeek').add(offset, 'week').day(day)
-
-  event.start = m.add(startTime, 'minutes')
-  event.end = m.add(endTime, 'minutes')
-  event.repeating({ freq: 'WEEKLY', interval: weekCount, count: 12 / weekCount })
-
-  return event
-}
+const cors = require('cors')
 
 const eventPlacements = {
-  'monday-1': (event, ceremony) => weeklyEvent(event, ceremony, 'monday'),
-  'tuesday-1': (event, ceremony) => weeklyEvent(event, ceremony, 'tuesday'),
-  'wednesday-1': (event, ceremony) => weeklyEvent(event, ceremony, 'wednesday'),
-  'thursday-1': (event, ceremony) => weeklyEvent(event, ceremony, 'thursday'),
-  'friday-1': (event, ceremony) => weeklyEvent(event, ceremony, 'friday'),
-  'monday-2': (event, ceremony) => weeklyEvent(event, ceremony, 'monday', 2),
-  'tuesday-2': (event, ceremony) => weeklyEvent(event, ceremony, 'tuesday', 2),
-  'wednesday-2': (event, ceremony) => weeklyEvent(event, ceremony, 'wednesday', 2),
-  'thursday-2': (event, ceremony) => weeklyEvent(event, ceremony, 'thursday', 2),
-  'friday-2': (event, ceremony) => weeklyEvent(event, ceremony, 'friday', 2),
-  'daily': (event, ceremony) => {
-    const m = moment().startOf('isoWeek').add(1, 'week').day('monday')
-    event.start = m.add(ceremony.startTime)
-    event.end = m.add(ceremony.endTime)
-    event.repeating({ freq: 'DAILY', count: 30 })
+  'monday-1':    ceremony => buildEvent(ceremony, 'weekly', 'monday'),
+  'tuesday-1':   ceremony => buildEvent(ceremony, 'weekly', 'tuesday'),
+  'wednesday-1': ceremony => buildEvent(ceremony, 'weekly', 'wednesday'),
+  'thursday-1':  ceremony => buildEvent(ceremony, 'weekly', 'thursday'),
+  'friday-1':    ceremony => buildEvent(ceremony, 'weekly', 'friday'),
+  'monday-2':    ceremony => buildEvent(ceremony, 'weekly', 'monday', 2),
+  'tuesday-2':   ceremony => buildEvent(ceremony, 'weekly', 'tuesday', 2),
+  'wednesday-2': ceremony => buildEvent(ceremony, 'weekly', 'wednesday', 2),
+  'thursday-2':  ceremony => buildEvent(ceremony, 'weekly', 'thursday', 2),
+  'friday-2':    ceremony => buildEvent(ceremony, 'weekly', 'friday', 2),
+  'daily':       ceremony => buildEvent(ceremony, 'daily')
+}
 
-    return event
+const buildEvent = ({ startTime, endTime, weekCount }, freq, day, offset = 1) => {
+  const m = moment().startOf('isoWeek').add(offset, 'week').day(day || 'monday')
+
+  return {
+    start: m.clone().add(startTime, 'minutes'),
+    end: m.clone().add(endTime, 'minutes'),
+    allDay: !startTime,
+    repeating: {
+      freq,
+      until: m.clone().add(3, 'month'),
+      interval: day ? weekCount : 1,
+      byDay: day ? [day.slice(0,2)] : ['mo', 'tu', 'we', 'th', 'fr']
+    }
   }
 }
 
-exports.upload = https.onRequest((req, res) => {
-  const { uuid, calendar = {} } = req.body
-  const filename = `/tmp/${uuid}.ical`
+exports.upload = https.onRequest((req, res) => (
+  cors({origin: config().sendgrid.cors_origin})(req, res, () => {
+    const { uuid, calendar = {} } = req.body
 
-  firebase.database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
-    const room = snapshot.val()
+    database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
+      const { weekCount, ceremonies, participants = {} } = snapshot.val()
+      const ical = generator()
 
-    const ical = generator({
-      domain: process.env.MVC_FIREBASE_DOMAIN,
-      name: calendar.name || 'Calendar Name',
-      timezone: calendar.timeZone || 'Europe/Berlin',
+      Object
+        .values(ceremonies)
+        .filter(({ placement }) => !!eventPlacements[placement])
+        .forEach(ceremony => (
+          ical.createEvent({
+            ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
+            summary: ceremony.title || ceremony.id,
+            description: ceremony.notes,
+            timezone: calendar.timeZone || 'Pacific/Auckland',
+            attendees: Object
+              .values(ceremony.people || [])
+              .map(uuid => participants[uuid])
+              .filter(participant => participant)
+              .map(({ username, email, optional }) => ({
+                email,
+                name: username,
+                role: optional ? 'opt-participant' : 'req-participant',
+                type: 'individual'
+              }))
+          })
+        ))
+
+      ical.saveSync(`/tmp/${uuid}.ical`)
+      storage().bucket().upload(`/tmp/${uuid}.ical`)
+      res.status(200).send({status: 'ok'})
     })
-
-    Object
-      .values(room.ceremonies)
-      .filter(({ placement }) => !!eventPlacements[placement])
-      .forEach(ceremony => eventFromCeremony(ical, room, ceremony))
-
-    fs.writeFile(filename, ical.toString(), console.log)
-    firebase.storage().bucket().upload(filename)
-
-    res.status(200).send({status: 'ok'})
   })
-})
+))
 
-const eventFromCeremony = (ical, room, ceremony) => {
-  const { uuid, placement, people = [] } = ceremony
-  const event = eventPlacements[placement](ical.createEvent(), {
-    ...ceremony,
-    weekCount: room.weekCount
-  })
-
-  Object
-    .values(people)
-    .map(uuid => room.participants[ceremony.uuid])
-    .filter(participant => participant)
-    .forEach(participant => attendeeFromParticipant(event, participant))
-}
-
-const attendeeFromParticipant = (event, { email, username, optional }) => (
-  event.createAttendee({
-    name:  username,
-    email: email,
-    role:  optional ? 'opt-participant' : 'req-participant',
-    type:  'individual',
-  })
-)
-
-exports.download = https.onRequest((req, res) => {
-  const filename = `/tmp/${req.query.uuid}.ical`
-
-  firebase
-    .storage()
+exports.download = https.onRequest(({ query: { uuid } }, res) => (
+  storage()
     .bucket()
-    .file(`${req.query.uuid}.ical`)
-    .download(filename)
-    .then(() => fs.createReadStream(filename).pipe(res))
-})
+    .file(`${uuid}.ical`)
+    .download(`/tmp/${uuid}.ical`)
+    .then(() => fs.createReadStream(`/tmp/${uuid}.ical`).pipe(res))
+))
