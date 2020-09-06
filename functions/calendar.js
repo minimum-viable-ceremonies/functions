@@ -41,7 +41,7 @@ exports.upload = https.onRequest((req, res) => (
 
     database().ref(`/rooms/${uuid}`).once('value').then(snapshot => {
       const { weekCount, ceremonies, participants = {} } = snapshot.val()
-      const ical = generator()
+      const ical = generator(calendar)
 
       Object
         .values(ceremonies)
@@ -51,7 +51,6 @@ exports.upload = https.onRequest((req, res) => (
             ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
             summary: ceremony.title || ceremony.id,
             description: ceremony.notes,
-            timezone: calendar.timeZone || 'Pacific/Auckland',
             attendees: Object
               .values(ceremony.people || [])
               .map(uuid => participants[uuid])
