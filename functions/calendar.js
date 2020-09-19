@@ -56,9 +56,9 @@ exports.upload = https.onRequest((req, res) => (
               .values(ceremony.people || [])
               .map(uuid => participants[uuid])
               .filter(participant => participant)
-              .map(({ username, email, optional }) => ({
+              .map(({ displayName, email, optional }) => ({
                 email,
-                name: username,
+                name: displayName,
                 role: optional ? 'opt-participant' : 'req-participant',
                 type: 'individual'
               }))
