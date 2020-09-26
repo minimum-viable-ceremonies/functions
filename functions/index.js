@@ -1,4 +1,3 @@
-const { upload, download } = require('./calendar')
 const firebase = require('firebase-admin')
 
 firebase.initializeApp({
@@ -11,3 +10,4 @@ firebase.initializeApp({
 
 exports.calendar = require('./calendar')
 exports.sendgrid = require('./sendgrid')
+exports.room = require('./room')
