@@ -2,6 +2,7 @@ const { database, storage } = require('firebase-admin')
 const { https, config } = require('firebase-functions')
 const generator = require('ical-generator')
 const moment = require('moment')
+const parameterize = require('parameterize')
 const fs = require('fs')
 const cors = require('cors')
 
@@ -51,7 +52,7 @@ exports.upload = https.onRequest((req, res) => (
             ...eventPlacements[ceremony.placement]({ ...ceremony, weekCount }),
             summary: ceremony.title || ceremony.id,
             description: ceremony.notes,
-            timezone: calendar.timeZone || 'Pacific/Auckland',
+            timezone: calendar.timezone || 'Pacific/Auckland',
             attendees: Object
               .values(ceremony.people || [])
               .map(uuid => participants[uuid])
@@ -65,17 +66,14 @@ exports.upload = https.onRequest((req, res) => (
           })
         ))
 
-      ical.saveSync(`/tmp/${uuid}.ical`)
-      storage().bucket().upload(`/tmp/${uuid}.ical`)
+      database().ref(`/rooms/${uuid}/calendar`).set({
+        name: calendar.name,
+        filename: `${parameterize(calendar.name)}.ical`,
+        timezone: calendar.timezone,
+        ical: ical.toString(),
+        exportedAt: moment().toISOString()
+      })
       res.status(200).send({status: 'ok'})
     })
   })
-))
-
-exports.download = https.onRequest(({ query: { uuid } }, res) => (
-  storage()
-    .bucket()
-    .file(`${uuid}.ical`)
-    .download(`/tmp/${uuid}.ical`)
-    .then(() => fs.createReadStream(`/tmp/${uuid}.ical`).pipe(res))
 ))
