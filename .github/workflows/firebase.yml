@@ -17,4 +17,7 @@ jobs:
     - run: cd functions; npm install; cd ..
     - uses: w9jds/firebase-action@master
       with:
+        args: deploy --only functions --project ${{ secrets.FIREBASE_TEST_DOMAIN }}
+    - uses: w9jds/firebase-action@master
+      with:
         args: deploy --only functions --project ${{ secrets.FIREBASE_DOMAIN }}
