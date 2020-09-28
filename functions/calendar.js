@@ -1,4 +1,4 @@
-const { database, storage } = require('firebase-admin')
+const { database } = require('firebase-admin')
 const { https, config } = require('firebase-functions')
 const generator = require('ical-generator')
 const moment = require('moment')

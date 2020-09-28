@@ -7,6 +7,8 @@ on:
 jobs:
   firebase-deploy:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
     steps:
     - uses: actions/checkout@master
     - uses: actions/setup-node@master
@@ -15,6 +17,7 @@ jobs:
     - run: cd functions; npm install; cd ..
     - uses: w9jds/firebase-action@master
       with:
+        args: functions:config:set root.domain="${{ secrets.FIREBASE_DOMAIN }}" root.api_key="${{ secrets.FIREBASE_API_KEY }}"
+    - uses: w9jds/firebase-action@master
+      with:
         args: deploy --only functions --project ${{ secrets.FIREBASE_DOMAIN }}
-      env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

@@ -1,13 +1,14 @@
-const { upload, download } = require('./calendar')
 const firebase = require('firebase-admin')
+const { config } = require('firebase-functions')
 
 firebase.initializeApp({
-  apiKey: process.env.MVC_FIREBASE_API_KEY,
-  authDomain: `${process.env.MVC_FIREBASE_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.MVC_FIREBASE_DOMAIN}.firebaseio.com`,
-  projectId: `${process.env.MVC_FIREBASE_DOMAIN}`,
-  storageBucket: `${process.env.MVC_FIREBASE_DOMAIN}.appspot.com`,
+  apiKey: config().root.api_key,
+  authDomain: `${config().root.domain}.firebaseapp.com`,
+  databaseURL: `https://${config().root.domain}.firebaseio.com`,
+  projectId: `${config().root.domain}`,
+  storageBucket: `${config().root.domain}.appspot.com`,
 })
 
 exports.calendar = require('./calendar')
 exports.sendgrid = require('./sendgrid')
+exports.room = require('./room')
