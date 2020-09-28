@@ -18,7 +18,7 @@ exports.slackCreate = https.onRequest((req, res) => {
   const uuid = phrase({ exactly: 3, join: '-' })
 
   createRoom({ name: req.body.text, uuid })
-    ? console.log('sending blocks...') || res.status(200).send({
+    ? res.status(200).send({
       response_type: 'in_channel',
       blocks: [{
         type: 'section',
@@ -66,9 +66,7 @@ const createRoom = ({ name, uuid, features = {}, weekCount = 1, template = 'defa
       return result
     }, {})
 
-  console.log('Room name', name)
   database().ref(`/rooms/${uuid}`).set({ name, features, weekCount, ceremonies })
 
-  console.log('create room success!')
   return true
 }
