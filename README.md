@@ -12,6 +12,8 @@ npm run serve
 In order for the Sendgrid lambdas to work correctly, the following firebase config variables will need to be populated:
 ```shell
 firebase functions:config:set \
+  root.api_key (api key for MVC project) \
+  root.domain (project name for MVC project) \
   sendgrid.api_key (api key with write access to contact lists) \
   sendgrid.list_id (id of sendgrid contact list to interact with) \
   sendgrid.cors_origin (domain which will be querying this API)
