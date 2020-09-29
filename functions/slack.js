@@ -54,7 +54,7 @@ exports.authorize = https.onRequest((req, res) => {
       database().ref("integrations/slack").child(data.team.id).set(data)
       return res.header("Location", `${config().slack.cors_origin}/slack?result=success`).send(302)
     } else {
-      console.error(`Slack Oauth failure: ${data}`)
+      console.error(`Slack Oauth failure: ${JSON.stringify(data)}`)
       return res.header("Location", `${config().slack.cors_origin}/slack?result=failure`).send(302)
     }
   }).catch(error => {
