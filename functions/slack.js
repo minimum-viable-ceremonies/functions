@@ -41,10 +41,9 @@ exports.create = https.onRequest((req, res) => (
 ))
 
 exports.authorize = https.onRequest((req, res) => {
-  const { query: { code }, method } = req
-
-  if (method !== "GET") { return res.status(405).send("Only GET requests are accepted") }
-  if (!code) { return res.status(401).send("Missing query attribute 'code'") }
+  if (!req.query || !req.query.code) {
+    return res.status(401).send("Missing query attribute 'code'")
+  }
 
   axios.post('https://slack.com/api/oauth.v2.access', querystring.stringify({
     code,
@@ -53,10 +52,10 @@ exports.authorize = https.onRequest((req, res) => {
   })).then(({ data }) => {
     if (data.ok) {
       database().ref("integrations/slack").child(data.team.id).set(data)
-      return res.header("Location", `${config().mvc.cors_origin}/slack/success`).send(302)
+      return res.header("Location", `${config().slack.cors_origin}/slack/success`).send(302)
     } else {
       console.error(`Slack Oauth failure: ${error}`)
-      return res.header("Location", `${config().mvc.cors_origin}/slack/failure`).send(302)
+      return res.header("Location", `${config().slack.cors_origin}/slack/failure`).send(302)
     }
   }).catch(error => {
     console.error(`Slack Oauth failure: ${error}`)
