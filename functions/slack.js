@@ -52,12 +52,13 @@ exports.authorize = https.onRequest((req, res) => {
     client_secret: config().slack.client_secret
   })).then(({ data }) => {
     if (data.ok) {
-      console.log(`Slack Oauth success: writing integration for ${data.team.name} to database...`)
       database().ref("integrations/slack").child(data.team.id).set(data)
       return res.header("Location", `${config().mvc.cors_origin}/slack/success`).send(302)
     } else {
-      console.error("Slack Oauth failure: " + JSON.stringify(data))
+      console.error(`Slack Oauth failure: ${error}`)
       return res.header("Location", `${config().mvc.cors_origin}/slack/failure`).send(302)
     }
+  }).catch(error => {
+    console.error(`Slack Oauth failure: ${error}`)
   })
 })
