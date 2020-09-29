@@ -10,5 +10,6 @@ firebase.initializeApp({
 })
 
 exports.calendar = require('./calendar')
+exports.mvc = require('./mvc')
 exports.sendgrid = require('./sendgrid')
-exports.room = require('./room')
+exports.slack = require('./slack')
