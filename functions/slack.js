@@ -4,9 +4,21 @@ const { createRoom } = require('./common')
 const axios = require('axios')
 const querystring = require('querystring')
 
-exports.create = https.onRequest((req, res) => (
+exports.create = https.onRequest((req, res) => {
   // TODO: use slack signed secrets to verify request
   // https://api.slack.com/authentication/verifying-requests-from-slack
+  if (req.body.text === 'help') {
+    return res.status(200).send({
+      blocks: [{
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: 'Type `/mvc [room name] in order to share a link to start your planning process meeting 🙃'
+        }
+      }]
+    })
+  }
+
   createRoom({ name: req.body.text })
     ? res.status(200).send({
       response_type: 'in_channel',
@@ -38,7 +50,7 @@ exports.create = https.onRequest((req, res) => (
         }
       }]
     })
-))
+})
 
 exports.authorize = https.onRequest((req, res) => {
   if (!req.query || !req.query.code) {
