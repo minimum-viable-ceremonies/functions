@@ -37,7 +37,7 @@ exports.create = https.onRequest((req, res) => {
             text: 'Get started 🙃'
           },
           style: 'primary',
-          url: `${config().room.cors_origin}/room/${uuid}`
+          url: `${config().mvc.cors_origin}/room/${uuid}`
         }]
       }]
     })
