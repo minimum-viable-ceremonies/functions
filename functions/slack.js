@@ -19,37 +19,29 @@ exports.create = https.onRequest((req, res) => {
     })
   }
 
-  createRoom({ name: req.body.text })
-    ? res.status(200).send({
+  const { uuid, errors } = createRoom({ name: req.body.text })
+  errors
+    ? res.status(400).send({
+      blocks: [{
+        type: 'section',
+        text: { type: 'mrkdwn', text: `Sorry, something went wrong: ${errors}` }
+      }]
+    })
+    : res.status(200).send({
       response_type: 'in_channel',
       blocks: [{
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `@${req.body.user_name} started a process planning room!`
-        }
+        text: { type: 'mrkdwn', text: `@${req.body.user_name} started a process planning room!` }
       }, {
         type: 'actions',
         elements: [{
           type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Get started 🙃'
-          },
           style: 'primary',
+          text: { type: 'plain_text', text: 'Get started 🙃' },
           url: `${config().mvc.cors_origin}/room/${uuid}`
         }]
       }]
-    })
-    : res.status(400).send({
-      blocks: [{
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: 'Sorry, something went wrong creating your room. Try again?'
-        }
-      }]
-    })
+  })
 })
 
 exports.authorize = https.onRequest((req, res) => {

@@ -15,7 +15,7 @@ exports.createRoom = ({
   if (!name) { errors.name = ['Name is required'] }
   if (!uuid) { errors.uuid = ['Uuid is required'] }
 
-  if (Object.values(errors).length) { return false }
+  if (Object.values(errors).length) { return { errors } }
 
   const ceremonies = fs.readFileSync(`templates/${template}`, 'utf-8')
     .split('\n')
@@ -27,5 +27,5 @@ exports.createRoom = ({
 
   database().ref(`/rooms/${uuid}`).set({ name, features, weekCount, ceremonies })
 
-  return true
+  return { uuid, name, features, weekCount, ceremonies }
 }
