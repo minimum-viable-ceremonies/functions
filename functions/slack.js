@@ -3,10 +3,14 @@ const { https, config } = require('firebase-functions')
 const { createRoom } = require('./common')
 const axios = require('axios')
 const querystring = require('querystring')
+const crypto = require('crypto')
+const tsscmp = require('tsscmp')
 
 exports.create = https.onRequest((req, res) => {
-  // TODO: use slack signed secrets to verify request
-  // https://api.slack.com/authentication/verifying-requests-from-slack
+  if (!verifyRequest(req)) {
+    return res.status(403).send("Couldn't verify that this request is from Slack!")
+  }
+
   if (req.body.text === 'help') {
     return res.status(200).send({
       blocks: [{
@@ -65,3 +69,13 @@ exports.authorize = https.onRequest((req, res) => {
     console.error(`Slack Oauth failure: ${error}`)
   })
 })
+
+const verifyRequest = ({ rawBody, headers = {} }) => {
+  const [version, hash] = headers['x-slack-signature'].split('=')
+  const signature = crypto
+    .createHmac('sha256', config().slack.signing_secret)
+    .update(`${version}:${headers['x-slack-request-timestamp']}:${rawBody}`)
+    .digest('hex')
+
+  return tsscmp(hash, signature)
+}
