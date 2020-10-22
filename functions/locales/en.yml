@@ -9,6 +9,7 @@ slack:
     400: "Sorry, something went wrong: {{errors}}"
     401: Missing query attribute 'code'
     403: Couldn't verify that this request is from Slack!
+    422: Please name your room! Simply pass a name to the mvc slash command like `/mvc `
 common:
   messages:
     200: ok

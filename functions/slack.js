@@ -13,6 +13,18 @@ exports.create = https.onRequest((req, res) => (
       return res.status(403).send(t('slack.errors.403'))
     }
 
+    if (req.body.text.length === 0) {
+      return res.status(422).send({
+        blocks: [{
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: t('slack.errors.422')
+          }
+        }]
+      })
+    }
+
     if (req.body.text === 'help') {
       return res.status(200).send({
         blocks: [{
