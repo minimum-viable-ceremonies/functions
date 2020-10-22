@@ -1,0 +1,18 @@
+---
+slack:
+  help:
+    message: Type `/mvc [room name] in order to share a link to start your planning process meeting 🙃
+  success:
+    message: "@{{user_name}} started a process planning room!"
+    button: Get started 🙃
+  errors:
+    400: "Sorry, something went wrong: {{errors}}"
+    401: Missing query attribute 'code'
+    403: Couldn't verify that this request is from Slack!
+common:
+  messages:
+    200: ok
+  errors:
+    name: Name is required
+    uuid: Uuuid is required
+    400: bad request
