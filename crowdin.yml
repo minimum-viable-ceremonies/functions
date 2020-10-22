@@ -1,0 +1,9 @@
+project_id: 420260
+api_token_env: CROWDIN_API_KEY
+base_path: .
+base_url: https://api.crowdin.com
+preserve_hierarchy: true
+files:
+  - source: /functions/locales/en.yml
+    translation: /functions/locales/%two_letters_code%.yml
+    dest: /functions/en.yml
