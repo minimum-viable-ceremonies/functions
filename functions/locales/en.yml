@@ -17,3 +17,11 @@ common:
     name: Name is required
     uuid: Uuuid is required
     400: bad request
+templates:
+  share:
+    title: Congratulations! It's an agile process!
+    helptext: Here's a summary of the process your team just agreed on with
+    noNotes: (No agenda set!)
+    async: Async
+  unsubscribe: Unsubscribe
+  unsubscribePreferences: Unsubscribe preferences
