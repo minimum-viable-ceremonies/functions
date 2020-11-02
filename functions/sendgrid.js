@@ -31,7 +31,7 @@ exports.share = https.onRequest((req, res) => (
             to: [{ email: "james.kiesel@gmail.com" }],
             dynamic_template_data: {
               uuid: req.body.uuid,
-              cadences: transformCeremonies(snapshot.toJSON()),
+              cadences: transformCeremonies(snapshot.toJSON(), t),
               translations: t('templates.share', {
                 userName: req.body.username,
                 teamName: snapshot.toJSON().name,
@@ -53,9 +53,16 @@ exports.share = https.onRequest((req, res) => (
   ))
 ))
 
-const transformCeremonies = ceremonies =>
+const transformCeremonies = (ceremonies, t) =>
   Object.values(ceremonies).reduce((result, ceremony) => {
-    result[ceremony.placement] = result[ceremony.placement] || { id: ceremony.placement, ceremonies: [] }
-    result[ceremony.placement].ceremonies.push(ceremony)
+    result[ceremony.placement] = result[ceremony.placement] || {
+      id: ceremony.placement,
+      name: t(`client.cadences.${ceremony.placement}.name`)
+      ceremonies: []
+    }
+    result[ceremony.placement].ceremonies.push({
+      ...ceremony,
+      name: t(`client.ceremonies.${ceremony.id}.name`)
+    })
     return result
   }, {})

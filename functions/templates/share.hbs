@@ -38,12 +38,12 @@
     <div style="margin: 10px 20px">
       <h3 style="margin-bottom: 24px">{{@root.translations.results}}</h3>
       {{#each cadences}}
-        <h4 style="margin-bottom: 12px">{{id}}</h4>
+        <h4 style="margin-bottom: 12px">{{name}}</h4>
         {{#each ceremonies}}
           <div style="padding: 12px; margin: 16px 0; border-radius: 8px; background: #f3f9ff; font-size: 14px;">
             <div style="margin-bottom: 8px">
               <h5 style="display: flex; align-items: center;">
-                <span style="font-size: 16px; margin-right: 8px">{{id}}</span>
+                <span style="font-size: 16px; margin-right: 8px">{{name}}</span>
                 {{#if async}}
                   <span class="pill">{{@root.translations.async}}</span>
                 {{else if startTime}}
