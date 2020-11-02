@@ -12,3 +12,11 @@ exports.create = https.onRequest((req, res) => (
     ))
   ))
 ))
+
+exports.translations = https.onRequest((req, res) => (
+  setLanguage(req, 'client').then(t => (
+    cors({origin: config().mvc.cors_origin})(req, res, () => (
+      res.status(200).send(t('client', { returnObjects: true }))
+    ))
+  ))
+))
