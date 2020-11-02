@@ -1,17 +1,15 @@
 cadences:
   - id: daily
-    name: Daily
     ceremonies:
     - id: checkin
       name: Check in
       async: true
       notes: We'll do a synchronous stand-up in Slack, with one person bringing a 'Question of the Day'
   - id: quarterly
-    name: Quarterly
     ceremonies:
     - id: documentation
       async: true
-      name: Documentation
     - id: hackathon
-      name: Hackathon
       notes: To be led by the Team leads to gather ideas, we'll take 2 days to spike out some features
+      async: false
+      startTime: 9:00am

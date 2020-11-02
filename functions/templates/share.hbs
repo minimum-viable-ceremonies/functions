@@ -1,58 +1,85 @@
 <html>
   <head>
-    <title>{{@root.translations.temaplates.share.title}}</title>
+    <title>{{@root.translations.title}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet" />
     <style>
-      .ceremony-details { display: none; }
-      input[type=checkbox]:checked~.ceremony-details { display: block; }
+      body {
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+      }
 
-      .ceremony-caret:before { content: "▸"; }
-      input[type=checkbox]:checked~.ceremony-summary .ceremony-caret:before { content: "▾"; }
+      h1, h2, h3, h4, h5 { margin: 0; }
+
+      .pill {
+        padding: 2px 6px;
+        border-radius: 16px;
+        margin: 4px;
+        background: #4988f5;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body style="max-width: 900px; margin: auto;">
-    <div>
-      {{@root.translations.templates.share.helptext}}
-      <a href="https://minimal.cards">Minimum Viable Ceremonies</a>
-      :
+    <div style="margin: 0 20px 20px; display: flex; background: #d3e9ff; border-radius: 0 0 8px 8px;">
+      <img style="height: 100px; margin: 12px 32px 0 16px;" src="https://avatars0.githubusercontent.com/u/67213269?s=200&v=4" alt="{{@root.translations.logoAlt}}" />
+      <div>
+        <h1 style="margin: 24px 0 4px;">{{@root.translations.mvc}}</h1>
+        <a href="https://minimal.cards">https://minimal.cards</a>
+      </div>
     </div>
-    <div>
+    <div style="margin: 10px 20px 40px">
+      <h2>{{@root.translations.greeting}}</h2>
+      <p>{{@root.translations.encouragement}}</p>
+    </div>
+    <div style="margin: 10px 20px">
+      <h3 style="margin-bottom: 24px">{{@root.translations.results}}</h3>
       {{#each cadences}}
-        <div>
-          <h2>{{name}}</h2>
-          {{#each ceremonies}}
-            <div>
-              <input style="display: none" type="checkbox" id="ceremony-{{id}}" />
-              <label class="ceremony-summary" for="ceremony-{{id}}">
-                <h4>
-                  <span style="width: 14px; height: 14px" class="ceremony-caret" />
-                  <span>{{name}}</span>
-                  {{#if async}}
-                    <em> ({{@root.translations.templates.share.async}})</em>
-                  {{else if startTime}}
-                    <em> ({{startTime}})</em>
-                  {{/if}}
-                </h4>
-              </label>
-              <div class="ceremony-details">
-                {{#if notes}}
-                  {{notes}}
-                {{else}}
-                  <em>{{@root.translations.templates.share.noNotes}}</em>
+        <h4 style="margin-bottom: 12px">{{id}}</h4>
+        {{#each ceremonies}}
+          <div style="padding: 12px; margin: 16px 0; border-radius: 8px; background: #f3f9ff; font-size: 14px;">
+            <div style="margin-bottom: 8px">
+              <h5 style="display: flex; align-items: center;">
+                <span style="font-size: 16px; margin-right: 8px">{{id}}</span>
+                {{#if async}}
+                  <span class="pill">{{@root.translations.async}}</span>
+                {{else if startTime}}
+                  <span class="pill">{{startTime}}</span>
                 {{/if}}
-              </div>
+              </h5>
             </div>
-          {{/each}}
-        </div>
+            <div style="font-size: 14px">
+              {{#if notes}}
+                {{notes}}
+              {{else}}
+                <em><small>{{@root.translations.noNotes}}</small></em>
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
       {{/each}}
+    </div>
+    <div style="margin: 40px 20px 20px; font-size: 14px">
+      <center>
+        <p margin="30px 0">
+          <em>{{@root.translations.team}}</em>
+        </p>
+        <a href="{{@root.translations.host}}/room/{{uuid}}" style="display: inline-block; color: white; background: #003f91; text-decoration: none; padding: 12px; margin: 12px 0; border-radius: 8px;">
+          {{@root.translations.backToRoom}}
+        </a>
+      </center>
     </div>
     <div data-role="module-unsubscribe" class="module" role="module" data-type="unsubscribe" style="color:#444444; font-size:12px; line-height:20px; padding:16px 16px 16px 16px; text-align:Center;" data-muid="4e838cf3-9892-4a6d-94d6-170e474d21e5">
       <p style="font-size:12px; line-height:20px;">
-        <a class="Unsubscribe--unsubscribeLink" href="{{{unsubscribe}}}" target="_blank" style="font-family:sans-serif;text-decoration:none;">
-          {{@root.translations.templates.unsubscribe}}
+        <a class="Unsubscribe--unsubscribeLink" href="{{{unsubscribe}}}" target="_blank" style="text-decoration:none;">
+          {{@root.translations.unsubscribe}}
         </a>
         -
-        <a href="{{{unsubscribe_preferences}}}" target="_blank" class="Unsubscribe--unsubscribePreferences" style="font-family:sans-serif;text-decoration:none;">
-          {{@root.translations.templates.unsubscribePreferences}}
+        <a href="{{{unsubscribe_preferences}}}" target="_blank" class="Unsubscribe--unsubscribePreferences" style="text-decoration:none;">
+          {{@root.translations.unsubscribePreferences}}
         </a>
       </p>
     </div>

@@ -7,11 +7,11 @@ const templateName = process.argv[2]
 const template = readFileSync(`../functions/templates/${templateName}.hbs`).toString()
 const fixture = {
   ...safeLoad(readFileSync(`./fixtures/${templateName}.yml`)),
-  translations: safeLoad(readFileSync(`../functions/locales/en.yml`))
+  translations: safeLoad(readFileSync(`../functions/locales/en.yml`)).templates[templateName],
 }
 
 writeFile(
   `./dist/${templateName}.html`,
   compile(template)(fixture),
-  (arg) => console.log(arg) || open(`dist/${templateName}.html`)
+  () => open(`dist/${templateName}.html`)
 )

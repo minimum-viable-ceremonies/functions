@@ -19,9 +19,14 @@ common:
     400: bad request
 templates:
   share:
-    title: Congratulations! It's an agile process!
-    helptext: Here's a summary of the process your team just agreed on with
+    mvc: Minimum Viable Ceremonies
+    title: Congratulations! You made an agile process!
+    greeting: Congrats on completing your MVC session! 🎉
+    encouragement: Now that you've got your process sorted, all that's left is getting on with it.
+    team: This process was completed with {{teamName}} on {{date}}
+    results: Your results
     noNotes: (No agenda set!)
     async: Async
-  unsubscribe: Unsubscribe
-  unsubscribePreferences: Unsubscribe preferences
+    unsubscribe: Unsubscribe
+    unsubscribePreferences: Unsubscribe preferences
+    backToRoom: Back to room
