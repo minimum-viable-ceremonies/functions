@@ -32,11 +32,11 @@ exports.createRoom = ({
   return { uuid, name, features, weekCount, ceremonies }
 }
 
-exports.setLanguage = req => {
+exports.setLanguage = (req, file = 'server') => {
   const langs = [... new Set(parse(req.headers['accept-language']).map(lng => lng.code))]
   return i18n.use(require('i18next-fs-backend')).init({
     lng: langs[0],
     fallbackLng: langs.slice(1).concat('en'),
-    backend: { loadPath: 'locales/{{lng}}.yml' }
+    backend: { loadPath: `locales/${file}.{{lng}}.yml` }
   })
 }
