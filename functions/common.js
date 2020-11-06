@@ -1,9 +1,15 @@
 const { database } = require('firebase-admin')
-const { parse } = require('accept-language-parser')
-const i18n = require('i18next')
+const { https } = require('firebase-functions')
 const phrase = require('random-words')
+const setLanguage = require('./locales/node')
 const cors = require('cors')
 const fs = require('fs')
+
+exports.endpoint = (origin, fn) =>
+  https.onRequest((req, res) =>
+    setLanguage(req).then(t =>
+      cors({ origin })(req, res, () =>
+        setResponse(req, res, fn, t))))
 
 exports.createRoom = ({
   name,
@@ -32,11 +38,9 @@ exports.createRoom = ({
   return { uuid, name, features, weekCount, ceremonies }
 }
 
-exports.setLanguage = (req, file = 'server') => {
-  const langs = [... new Set(parse(req.headers['accept-language']).map(lng => lng.code))]
-  return i18n.use(require('i18next-fs-backend')).init({
-    lng: langs[0],
-    fallbackLng: langs.slice(1).concat('en'),
-    backend: { loadPath: `locales/${file}.{{lng}}.yml` }
-  })
-}
+const setResponse = (req, res, fn, t) =>
+  Promise.resolve(fn(req, t))
+    .then(([status, body]) => status === 302
+      ? res.header("Location", body).send(status)
+      : res.status(status).send(body))
+    .catch(console.log)
