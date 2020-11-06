@@ -1,0 +1,3 @@
+[submodule "functions/locales"]
+	path = functions/locales
+	url = git@github.com:minimum-viable-ceremonies/locales.git

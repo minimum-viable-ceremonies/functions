@@ -37,6 +37,6 @@ exports.setLanguage = (req, file = 'server') => {
   return i18n.use(require('i18next-fs-backend')).init({
     lng: langs[0],
     fallbackLng: langs.slice(1).concat('en'),
-    backend: { loadPath: `locales/${file}.{{lng}}.yml` }
+    backend: { loadPath: `locales/${file}/{{lng}}.yml` }
   })
 }
