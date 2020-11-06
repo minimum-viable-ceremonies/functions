@@ -1,7 +1,15 @@
 const { database } = require('firebase-admin')
+const { https } = require('firebase-functions')
 const phrase = require('random-words')
+const setLanguage = require('./locales/node')
 const cors = require('cors')
 const fs = require('fs')
+
+exports.endpoint = (origin, fn) =>
+  https.onRequest((req, res) =>
+    setLanguage(req).then(t =>
+      cors({ origin })(req, res, () =>
+        setResponse(req, res, fn, t))))
 
 exports.createRoom = ({
   name,
@@ -29,3 +37,10 @@ exports.createRoom = ({
 
   return { uuid, name, features, weekCount, ceremonies }
 }
+
+const setResponse = (req, res, fn, t) =>
+  Promise.resolve(fn(req, t))
+    .then(([status, body]) => status === 302
+      ? res.header("Location", body).send(status)
+      : res.status(status).send(body))
+    .catch(console.log)
