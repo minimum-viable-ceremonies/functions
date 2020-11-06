@@ -1,11 +1,11 @@
 const { database } = require('firebase-admin')
 const { https, config } = require('firebase-functions')
-const { createRoom, setLanguage } = require('./common')
+const { createRoom } = require('./common')
+const setLanguage = require('./locales/node')
 const axios = require('axios')
 const querystring = require('querystring')
 const crypto = require('crypto')
 const tsscmp = require('tsscmp')
-const { t } = require('i18next')
 
 exports.create = https.onRequest((req, res) => (
   setLanguage(req).then(t => {

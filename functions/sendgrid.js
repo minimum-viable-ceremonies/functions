@@ -1,7 +1,7 @@
 const axios = require('axios')
 const { https, config } = require('firebase-functions')
 const cors = require('cors')
-const { setLanguage } = require('./common')
+const setLanguage = require('./locales/node')
 
 exports.subscribe = https.onRequest((req, res) => (
   setLanguage(req).then(t => (

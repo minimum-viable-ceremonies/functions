@@ -1,6 +1,7 @@
 const { https, config } = require('firebase-functions')
 const cors = require('cors')
-const { createRoom, setLanguage } = require('./common')
+const setLanguage = require('./locales/node')
+const { createRoom } = require('./common')
 
 exports.create = https.onRequest((req, res) => (
   setLanguage(req).then(t => (
