@@ -10,8 +10,6 @@
         font-weight: 300;
       }
 
-      h1, h2, h3, h4, h5 { margin: 0; }
-
       .pill {
         padding: 2px 6px;
         border-radius: 16px;
@@ -21,10 +19,28 @@
         font-size: 12px;
         font-weight: bold;
       }
+
+      .people {
+        margin-top: 12px;
+      }
+
+      .person {
+        margin-top: 12px;
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        border-radius: 100%;
+        background: #abcabc;
+        font-size: 18px;
+        margin: 4px;
+        text-align: center;
+      }
+
+      h1, h2, h3, h4, h5 { margin: 0; }
     </style>
   </head>
   <body style="max-width: 900px; margin: auto;">
-    <div style="margin: 0 20px 20px; display: flex; background: #d3e9ff; border-radius: 0 0 8px 8px;">
+    <div style="margin: 0 20px 20px; display: flex; background: #d3e9ff; border-radius: 8px">
       <img style="height: 100px; margin: 12px 32px 0 16px;" src="https://avatars0.githubusercontent.com/u/67213269?s=200&v=4" alt="{{@root.translations.logoAlt}}" />
       <div>
         <h1 style="margin: 24px 0 4px;">{{@root.translations.mvc}}</h1>
@@ -43,11 +59,11 @@
           <div style="padding: 12px; margin: 16px 0; border-radius: 8px; background: #f3f9ff; font-size: 14px;">
             <div style="margin-bottom: 8px">
               <h5 style="display: flex; align-items: center;">
-                <span style="font-size: 16px; margin-right: 8px">{{name}}</span>
-                {{#if async}}
-                  <span class="pill">{{@root.translations.async}}</span>
-                {{else if startTime}}
-                  <span class="pill">{{startTime}}</span>
+                <span style="font-size: 16px; margin-top: 4px; margin-right: 8px">{{title}}</span>
+                {{#if pill}}
+                  <span class="pill">
+                    {{pill}}
+                  </span>
                 {{/if}}
               </h5>
             </div>
@@ -58,6 +74,17 @@
                 <em><small>{{@root.translations.noNotes}}</small></em>
               {{/if}}
             </div>
+            <div>
+              {{#if people}}
+                <div class="people">
+                  {{#each people}}
+                    <div class="person" title="{{name}}">
+                      {{initial}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{/if}}
+            </div>
           </div>
         {{/each}}
       {{/each}}
@@ -65,23 +92,12 @@
     <div style="margin: 40px 20px 20px; font-size: 14px">
       <center>
         <p margin="30px 0">
-          <em>{{@root.translations.team}}</em>
+          <em>{{@root.translations.footer}}</em>
         </p>
-        <a href="{{@root.translations.host}}/room/{{uuid}}" style="display: inline-block; color: white; background: #003f91; text-decoration: none; padding: 12px; margin: 12px 0; border-radius: 8px;">
+        <a href="{{@root.translations.roomUrl}}" style="display: inline-block; color: white; background: #003f91; text-decoration: none; padding: 12px; margin: 12px 0; border-radius: 8px;">
           {{@root.translations.backToRoom}}
         </a>
       </center>
-    </div>
-    <div data-role="module-unsubscribe" class="module" role="module" data-type="unsubscribe" style="color:#444444; font-size:12px; line-height:20px; padding:16px 16px 16px 16px; text-align:Center;" data-muid="4e838cf3-9892-4a6d-94d6-170e474d21e5">
-      <p style="font-size:12px; line-height:20px;">
-        <a class="Unsubscribe--unsubscribeLink" href="{{{unsubscribe}}}" target="_blank" style="text-decoration:none;">
-          {{@root.translations.unsubscribe}}
-        </a>
-        -
-        <a href="{{{unsubscribe_preferences}}}" target="_blank" class="Unsubscribe--unsubscribePreferences" style="text-decoration:none;">
-          {{@root.translations.unsubscribePreferences}}
-        </a>
-      </p>
     </div>
   </body>
 </html>

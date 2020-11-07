@@ -1,5 +1,7 @@
 const { database } = require('firebase-admin')
 const { https } = require('firebase-functions')
+const { compile } = require('handlebars')
+const { readFileSync } = require('fs')
 const phrase = require('random-words')
 const setLanguage = require('./locales/node')
 const cors = require('cors')
@@ -37,6 +39,9 @@ exports.createRoom = ({
 
   return { uuid, name, features, weekCount, ceremonies }
 }
+
+exports.compileTemplate = (template, data) =>
+  compile(readFileSync(`./templates/${template}.hbs`).toString())(data)
 
 const setResponse = (req, res, fn, t) =>
   Promise.resolve(fn(req, t))

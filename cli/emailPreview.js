@@ -7,7 +7,7 @@ const templateName = process.argv[2]
 const template = readFileSync(`../functions/templates/${templateName}.hbs`).toString()
 const fixture = {
   ...safeLoad(readFileSync(`./fixtures/${templateName}.yml`)),
-  translations: safeLoad(readFileSync(`../functions/locales/server.en.yml`)).templates[templateName]
+  translations: safeLoad(readFileSync(`../functions/locales/server/en.yml`)).templates[templateName]
 }
 
 writeFile(
