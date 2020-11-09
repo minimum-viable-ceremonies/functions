@@ -21,22 +21,21 @@ module.exports = (req, t) =>
             value: compileTemplate('share', {
               cadences: Object.values(ceremonies).reduce((result, ceremony) => {
                 if (['void', 'undecided'].includes(ceremony.placement)) { return result }
-
                 result[ceremony.placement] = result[ceremony.placement] || {
                   id: ceremony.placement,
                   name: t(`app:cadences.${ceremony.placement}.name`),
                   ceremonies: []
                 }
-                result[ceremony.placement].ceremonies.push({
+                result[ceremony.placement].ceremonies.unshift({
                   ...ceremony,
                   title: ceremony.title || t(`app:ceremonies.${ceremony.id}.name`),
                   pill: (
                     (ceremony.async && t('templates.share.async')) ||
                     (ceremony.startTime && dayjs().set('hour', 0).set('minute', ceremony.startTime).format('H:mm a'))
                   ),
-                  participants: (ceremony.people || [])
+                  people: Object.values(ceremony.people || [])
                     .filter(person => person.label)
-                    .map(({ label }) => ({ initial: label[0], name: label })
+                    .map(({ label }) => ({ initial: label[0], name: label }))
                 })
                 return result
               }),
@@ -45,7 +44,7 @@ module.exports = (req, t) =>
                 footer: t('templates.share.footer', { name, date: dayjs().format('DD MMM YY') }),
                 roomUrl: `${config().app.cors_origin}/room/${req.body.uuid}`
               }
-            })
+            }, ['ceremony'])
           }]
         }, {
           headers: {

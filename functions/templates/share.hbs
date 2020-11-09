@@ -4,100 +4,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet" />
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-        font-weight: 300;
-      }
-
-      .pill {
-        padding: 2px 6px;
-        border-radius: 16px;
-        margin: 4px;
-        background: #4988f5;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-      }
-
-      .people {
-        margin-top: 12px;
-      }
-
-      .person {
-        margin-top: 12px;
-        width: 24px;
-        height: 24px;
-        display: inline-block;
-        border-radius: 100%;
-        background: #abcabc;
-        font-size: 18px;
-        margin: 4px;
-        text-align: center;
-      }
-
-      h1, h2, h3, h4, h5 { margin: 0; }
-    </style>
+    {{> shareStyles}}
   </head>
-  <body style="max-width: 900px; margin: auto;">
-    <div style="margin: 0 20px 20px; display: flex; background: #d3e9ff; border-radius: 8px">
-      <img style="height: 100px; margin: 12px 32px 0 16px;" src="https://avatars0.githubusercontent.com/u/67213269?s=200&v=4" alt="{{@root.translations.logoAlt}}" />
-      <div>
-        <h1 style="margin: 24px 0 4px;">{{@root.translations.mvc}}</h1>
-        <a href="https://minimal.cards">https://minimal.cards</a>
-      </div>
-    </div>
-    <div style="margin: 10px 20px 40px">
-      <h2>{{@root.translations.greeting}}</h2>
-      <p>{{@root.translations.encouragement}}</p>
-    </div>
-    <div style="margin: 10px 20px">
-      <h3 style="margin-bottom: 24px">{{@root.translations.results}}</h3>
-      {{#each cadences}}
-        <h4 style="margin-bottom: 12px">{{name}}</h4>
-        {{#each ceremonies}}
-          <div style="padding: 12px; margin: 16px 0; border-radius: 8px; background: #f3f9ff; font-size: 14px;">
-            <div style="margin-bottom: 8px">
-              <h5 style="display: flex; align-items: center;">
-                <span style="font-size: 16px; margin-top: 4px; margin-right: 8px">{{title}}</span>
-                {{#if pill}}
-                  <span class="pill">
-                    {{pill}}
-                  </span>
-                {{/if}}
-              </h5>
-            </div>
-            <div style="font-size: 14px">
-              {{#if notes}}
-                {{notes}}
-              {{else}}
-                <em><small>{{@root.translations.noNotes}}</small></em>
-              {{/if}}
-            </div>
-            <div>
-              {{#if people}}
-                <div class="people">
-                  {{#each people}}
-                    <div class="person" title="{{name}}">
-                      {{initial}}
-                    </div>
-                  {{/each}}
-                </div>
-              {{/if}}
-            </div>
-          </div>
-        {{/each}}
-      {{/each}}
-    </div>
-    <div style="margin: 40px 20px 20px; font-size: 14px">
-      <center>
-        <p margin="30px 0">
-          <em>{{@root.translations.footer}}</em>
+  <body>
+    <center>
+      <div class="header">
+        <h1>🙃&nbsp;&nbsp;Minimum Viable Ceremonies</h1>
+        <p>
+          <a href="https://minimal.cards">https://minimal.cards</a>
         </p>
-        <a href="{{@root.translations.roomUrl}}" style="display: inline-block; color: white; background: #003f91; text-decoration: none; padding: 12px; margin: 12px 0; border-radius: 8px;">
-          {{@root.translations.backToRoom}}
-        </a>
-      </center>
-    </div>
+      </div>
+      <div class="content">
+        <center class="content-header">
+          <div class="icon">🎉</div>
+          <h2>{{@root.translations.congrats}}</h2>
+          <p>{{@root.translations.encouragement}}</p>
+        </center>
+        <div>
+          <h3 class="content-title">{{@root.translations.stats.title}}</h3>
+          <div class="stats">
+            {{#each stats}}
+              <div class="box stat">
+                <div class="stat-figure">{{figure}}</div>
+                <div class="stat-description">{{description}}</div>
+              </div>
+            {{/each}}
+          </div>
+
+          <h3 class="content-title">{{@root.translations.schedule.title}}</h3>
+
+          {{#if cadences.general}}
+            <h4 class="content-subtitle">{{@root.translations.schedule.sprint}}</h4>
+            {{#each cadences.sprint}}
+              {{> cadence}}
+            {{/each}}
+          {{/if}}
+
+          {{#if cadences.sprint}}
+            <h4 class="content-subtitle">{{@root.translations.schedule.general}}</h4>
+            {{#each cadences.general}}
+              {{> cadence}}
+            {{/each}}
+          {{/if}}
+        </div>
+        <div class="footer">
+          <a class="button" href="{{@root.translations.roomUrl}}">
+            {{@root.translations.backToRoom}}
+          </a>
+          <p><em>{{@root.translations.footer}}</em></p>
+        </div>
+      </div>
+    </center>
   </body>
 </html>

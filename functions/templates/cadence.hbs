@@ -1,0 +1,28 @@
+<div class="cadence">
+  <h4>{{name}}</h4>
+  {{#each ceremonies}}
+    <div class="box ceremony">
+      <div class="ceremony-title">
+        <h5>{{icon}} {{title}}</h5>
+        {{#if pill}}
+          <span class="pill">{{pill}}</span>
+        {{/if}}
+        <div style="flex-grow: 1"></div>
+        {{#if people}}
+          <div class="people">
+            {{#each people}}
+              <div class="person" title="{{name}}">{{initial}}</div>
+            {{/each}}
+          </div>
+        {{/if}}
+      </div>
+      <div>
+        {{#if notes}}
+          {{notes}}
+        {{else}}
+          <em><small>{{@root.translations.noNotes}}</small></em>
+        {{/if}}
+      </div>
+    </div>
+  {{/each}}
+</div>

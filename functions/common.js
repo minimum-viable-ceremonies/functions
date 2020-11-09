@@ -1,11 +1,14 @@
 const { database } = require('firebase-admin')
 const { https } = require('firebase-functions')
-const { compile } = require('handlebars')
+const Handlebars = require('handlebars')
 const { readFileSync } = require('fs')
 const phrase = require('random-words')
 const setLanguage = require('./locales/node')
 const cors = require('cors')
 const fs = require('fs')
+
+Handlebars.registerPartial('cadence', fs.readFileSync('./templates/cadence.hbs').toString())
+Handlebars.registerPartial('shareStyles', fs.readFileSync('./templates/shareStyles.hbs').toString())
 
 exports.endpoint = (origin, fn) =>
   https.onRequest((req, res) =>
@@ -41,7 +44,7 @@ exports.createRoom = ({
 }
 
 exports.compileTemplate = (template, data) =>
-  compile(readFileSync(`./templates/${template}.hbs`).toString())(data)
+  Handlebars.compile(readFileSync(`./templates/${template}.hbs`).toString())(data)
 
 const setResponse = (req, res, fn, t) =>
   Promise.resolve(fn(req, t))
