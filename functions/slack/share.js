@@ -7,11 +7,12 @@ const { snapshotToShare } = require('../common')
 
 module.exports = (req, t) =>
   i18n.loadNamespaces('app').then(() =>
-    database().ref(`/rooms/${req.body.uuid}`).once('value').then(snapshot => {
+    database().ref(`/rooms/${JSON.parse(req.body).uuid}`).once('value').then(snapshot => {
+      const { channel, uuid } = JSON.parse(req.body)
       const { stats, cadences } = snapshotToShare(snapshot, t)
 
       return axios.post('https://slack.com/api/chat.postMessage', {
-        channel: req.body.channel,
+        channel,
         blocks: [{
           type: 'header',
           text: { type: 'plain_text', text: t('templates.share.congrats') }
@@ -43,7 +44,7 @@ module.exports = (req, t) =>
           accessory: {
             type: 'button',
             text: { type: 'plain_text', text: t('templates.share.backToRoom') },
-            url: `${config().app.cors_origin}/room/${req.body.uuid}`
+            url: `${config().app.cors_origin}/room/${uuid}`
           }
         }]
       }, {

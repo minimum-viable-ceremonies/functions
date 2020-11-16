@@ -15,7 +15,6 @@ const transformChannels = channels =>
   channels
     .filter(channel => !channel.is_archived)
     .map(channel => ({
+      id: channel.id,
       name: channel.name,
-      purpose: channel.purpose.value,
-      member: channel.is_member,
     }))
