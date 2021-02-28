@@ -28,7 +28,7 @@ module.exports = (req, t) =>
           }]
         }, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${config().sendgrid.api_key}`
           }
         }).then(() => [200, { status: t('common.messages.200') }])
           .catch(({ request, response }) => [response.status, response.data])))
