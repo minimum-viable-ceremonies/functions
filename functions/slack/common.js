@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 const tsscmp = require('tsscmp')
-const { config } = require('firebase-admin')
+const { config } = require('firebase-functions')
 
 exports.returnMessage = text =>
   { blocks: [{ type: 'section', text: { type: 'mrkdwn', text } }] }

@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>{{@root.translations.title}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet" />
+    {{> shareStyles}}
+  </head>
+  <body>
+    <center>
+      <div class="header">
+        <h1>🙃&nbsp;&nbsp;Minimum Viable Ceremonies</h1>
+        <p>
+          <a href="https://minimal.cards">https://minimal.cards</a>
+        </p>
+      </div>
+      <div class="content">
+        <center class="content-header">
+          <div class="icon">🎉</div>
+          <h2>{{@root.translations.congrats}}</h2>
+          <p>{{@root.translations.encouragement}}</p>
+        </center>
+        <div>
+          <h3 class="content-title">{{@root.translations.stats.title}}</h3>
+          <div class="stats">
+            {{#each stats}}
+              <div class="box stat">
+                <div class="stat-figure">{{figure}}</div>
+                <div class="stat-description">{{description}}</div>
+              </div>
+            {{/each}}
+          </div>
+
+          <h3 class="content-title">{{@root.translations.schedule.title}}</h3>
+
+          {{#if cadences.general}}
+            <h4 class="content-subtitle">{{@root.translations.schedule.sprint}}</h4>
+            {{#each cadences.sprint}}
+              {{> cadence}}
+            {{/each}}
+          {{/if}}
+
+          {{#if cadences.sprint}}
+            <h4 class="content-subtitle">{{@root.translations.schedule.general}}</h4>
+            {{#each cadences.general}}
+              {{> cadence}}
+            {{/each}}
+          {{/if}}
+        </div>
+        <div class="footer">
+          <a class="button" href="{{@root.translations.roomUrl}}">
+            {{@root.translations.backToRoom}}
+          </a>
+          <p><em>{{@root.translations.footer}}</em></p>
+        </div>
+      </div>
+    </center>
+  </body>
+</html>

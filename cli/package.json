@@ -1,0 +1,16 @@
+{
+  "name": "cli",
+  "description": "Testing CLI for Minimum Viable Ceremonies",
+  "engines": {
+    "node": "10"
+  },
+  "scripts": {
+    "preview": "node ./emailPreview.js"
+  },
+  "private": true,
+  "dependencies": {
+    "handlebars": "^4.7.6",
+    "js-yaml": "^3.14.0",
+    "open": "^7.3.0"
+  }
+}

@@ -1,0 +1,47 @@
+stats:
+  - figure: 8
+    description: Total Scheduled Ceremonies
+  - figure: 2
+    description: Average People Per Meeting
+  - figure: 5
+    description: Average Ceremonies Per Week
+cadences:
+  sprint:
+    - id: wednesday-1
+      name: First Wednesday
+      ceremonies:
+        - id: planning
+          title: Sprint Planning
+          icon: '👓'
+          startTime: 10:00am
+          notes: Rotating team member to bring donuts
+  general:
+    - id: daily
+      name: Daily
+      ceremonies:
+      - id: checkin
+        title: Check in
+        icon: '🔗'
+        async: true
+        notes: We'll do a synchronous stand-up in Slack, with one person bringing a 'Question of the Day'
+    - id: quarterly
+      name: Quarterly
+      ceremonies:
+      - id: documentation
+        title: Documentation
+        icon: '📒'
+        async: true
+        people:
+        - initial: J
+          name: James
+        - initial: A
+          name: Ashlyn
+      - id: hackathon
+        title: Hackathon
+        icon: '🍕'
+        notes: To be led by the Team leads to gather ideas, we'll take 2 days to spike out some features
+        async: false
+        startTime: 9:00am
+        people:
+        - initial: J
+          name: James

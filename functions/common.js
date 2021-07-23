@@ -1,9 +1,14 @@
 const { database } = require('firebase-admin')
 const { https } = require('firebase-functions')
+const Handlebars = require('handlebars')
+const { readFileSync } = require('fs')
 const phrase = require('random-words')
 const setLanguage = require('./locales/node')
 const cors = require('cors')
 const fs = require('fs')
+
+Handlebars.registerPartial('cadence', fs.readFileSync('./templates/cadence.hbs').toString())
+Handlebars.registerPartial('shareStyles', fs.readFileSync('./templates/shareStyles.hbs').toString())
 
 exports.endpoint = (origin, fn) =>
   https.onRequest((req, res) =>
@@ -37,6 +42,43 @@ exports.createRoom = ({
 
   return { uuid, name, features, weekCount, ceremonies }
 }
+
+exports.snapshotToShare = (snapshot, t) => {
+  const { ceremonies = [] } = snapshot.toJSON() || {}
+  const cadences = Object.values(ceremonies).reduce((result, ceremony) => {
+    if (['void', 'undecided'].includes(ceremony.placement)) { return result }
+    result[ceremony.placement] = result[ceremony.placement] || {
+      id: ceremony.placement,
+      name: t(`app:cadences.${ceremony.placement}.name`),
+      ceremonies: []
+    }
+    result[ceremony.placement].ceremonies.unshift({
+      ...ceremony,
+      title: ceremony.title || t(`app:ceremonies.${ceremony.id}.name`),
+      pill: (
+        (ceremony.async && t('templates.share.async')) ||
+        (ceremony.startTime && dayjs().set('hour', 0).set('minute', ceremony.startTime).format('H:mm a'))
+      ),
+      people: Object.values(ceremony.people || [])
+        .filter(person => person.label)
+        .map(({ label }) => ({ initial: label[0], name: label }))
+    })
+    return result
+  }, [])
+
+  return {
+    cadences,
+    stats: {
+      // TODO: calculate stats
+      ceremonies: 6,
+      people: 2,
+      weekly: 4.3
+    }
+  }
+}
+
+exports.compileTemplate = (template, data) =>
+  Handlebars.compile(readFileSync(`./templates/${template}.hbs`).toString())(data)
 
 const setResponse = (req, res, fn, t) =>
   Promise.resolve(fn(req, t))
